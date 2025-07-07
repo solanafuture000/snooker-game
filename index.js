@@ -23,15 +23,14 @@ app.use('/api/user', userRoutes);          // 👤 User Profile, Chips
 app.use('/api/game', gameRoutes);          // 🎮 Game Logic, Wins
 app.use('/api/withdraw', withdrawRoutes);  // 💸 Withdraw endpoint
 
-// ✅ MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log("✅ MongoDB Connected");
-}).catch(err => {
-  console.error("❌ MongoDB Connection Error:", err);
-});
+// ✅ MongoDB Connection (Clean, modern way)
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log("✅ MongoDB Connected");
+  })
+  .catch(err => {
+    console.error("❌ MongoDB Connection Error:", err);
+  });
 
 // ✅ Start Server
 const PORT = process.env.PORT || 3000;
