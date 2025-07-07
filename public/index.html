@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Snooker Game 🎱</title>
+  <style>
+    body {
+      background: #000;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    canvas {
+      background: #146c43;
+      border: 10px solid #8b0000;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="snooker" width="800" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("snooker");
+    const ctx = canvas.getContext("2d");
+
+    const ball = {
+      x: 400,
+      y: 200,
+      radius: 10,
+      color: "white",
+      vx: 0,
+      vy: 0,
+      moving: false
+    };
+
+    let mouseDown = false;
+    let startX = 0, startY = 0;
+    let endX = 0, endY = 0;
+
+    // Draw ball
+    function drawBall() {
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+      ctx.fillStyle = ball.color;
+      ctx.fill();
+    }
+
+    // Draw aim line
+    function drawLine() {
+      if (!mouseDown) return;
+      ctx.beginPath();
+      ctx.moveTo(ball.x, ball.y);
+      ctx.lineTo(endX, endY);
+      ctx.strokeStyle = 'yellow';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // Physics
+    function updateBall() {
+      if (!ball.moving) return;
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+
+      // Friction
+      ball.vx *= 0.98;
+      ball.vy *= 0.98;
+
+      // Stop if very slow
+      if (Math.abs(ball.vx) < 0.1) ball.vx = 0;
+      if (Math.abs(ball.vy) < 0.1) ball.vy = 0;
+      if (ball.vx === 0 && ball.vy === 0) ball.moving = false;
+
+      // Bounce from edges
+      if (ball.x <= ball.radius || ball.x >= canvas.width - ball.radius) {
+        ball.vx *= -1;
+      }
+      if (ball.y <= ball.radius || ball.y >= canvas.height - ball.radius) {
+        ball.vy *= -1;
+      }
+    }
+
+    // Main Loop
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      updateBall();
+      drawBall();
+      drawLine();
+      requestAnimationFrame(draw);
+    }
+
+    // Mouse Events
+    canvas.addEventListener("mousedown", (e) => {
+      if (ball.moving) return;
+      mouseDown = true;
+      startX = e.offsetX;
+      startY = e.offsetY;
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      if (!mouseDown) return;
+      endX = e.offsetX;
+      endY = e.offsetY;
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      if (!mouseDown || ball.moving) return;
+      mouseDown = false;
+
+      const dx = startX - endX;
+      const dy = startY - endY;
+
+      ball.vx = dx * 0.1;
+      ball.vy = dy * 0.1;
+      ball.moving = true;
+    });
+
+    draw(); // Start loop
+  </script>
+</body>
+</html>
